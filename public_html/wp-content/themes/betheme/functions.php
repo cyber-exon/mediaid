@@ -211,3 +211,37 @@ define('THEME_VERSION', MFN_THEME_VERSION);
 
 define('LIBS_DIR', get_template_directory() .'/functions');
 define('LIBS_URI', get_template_directory() .'/functions');
+
+function add_geolocation_script() {
+    if (is_page('emergency-2')) { // Check if the current page is "emergency-2"
+        ?>
+        <script>
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    console.log("Geolocation is not supported by this browser.");
+                }
+            }
+
+            function showPosition(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+
+                // You can store the location data in a variable or perform further actions with it
+                var userLocation = "Latitude: " + latitude + ", Longitude: " + longitude;
+                console.log(userLocation);
+
+                // Set the location value to the contact form field
+                document.getElementById("locationField").value = userLocation;
+            }
+
+            // Call the getLocation function on page load
+            document.addEventListener("DOMContentLoaded", function() {
+                getLocation();
+            });
+        </script>
+        <?php
+    }
+}
+add_action('wp_footer', 'add_geolocation_script');
