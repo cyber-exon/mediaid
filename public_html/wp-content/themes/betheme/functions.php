@@ -266,7 +266,7 @@ function add_geolocation_script() {
             console.log(userLocation);
 
             // Set the location value to the contact form field
-            document.getElementById("locationField").value = userLocation;
+            document.getElementById("location").value = userLocation;
         }
 
         // Add a click event listener to the button to ask for permission and get location
@@ -281,11 +281,6 @@ add_action('wp_footer', 'add_geolocation_script');
 function console_location_shortcode() {
     ob_start();
     ?>
-    <style>
-        #locationField {
-            width: 100%;
-        }
-    </style>
     <script>	
         function getLocation() {
             if (navigator.permissions) {
@@ -310,7 +305,7 @@ function console_location_shortcode() {
             console.log(userLocation);
 
             // Set the location value to the contact form field
-            document.getElementById("locationField").value = userLocation;
+            document.getElementById("location").value = userLocation;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -318,7 +313,7 @@ function console_location_shortcode() {
         });
     </script>
 
-    <input type="text" id="locationField" name="location" disabled>
+
     <button type="button" id="getLocationBtn" onclick="getLocation()">Get Location</button>
     <?php
     return ob_get_clean();
