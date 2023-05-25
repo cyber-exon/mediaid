@@ -320,4 +320,56 @@ function console_location_shortcode() {
 }
 add_shortcode('console_location', 'console_location_shortcode');
 
+function nearby_hospitals_shortcode() {
+    ob_start();
+    ?>
+    <div id="map" style="height: 400px;"></div>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        function initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLocation = [position.coords.latitude, position.coords.longitude];
+
+                    var map = L.map('map').setView(userLocation, 12);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+                        maxZoom: 18
+                    }).addTo(map);
+
+                    var hospitalsLayer = L.layerGroup().addTo(map);
+
+                    var url = 'https://www.openstreetmap.org/search?query=hospital#map=' + map.getZoom() + '/' + userLocation[0] + '/' + userLocation[1];
+                    var link = '<a href="' + url + '">See all hospitals</a>';
+
+                    L.marker(userLocation).addTo(map)
+                        .bindPopup('<b>Your Location</b><br>' + link)
+                        .openPopup();
+
+                    var requestUrl = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + userLocation[0] + '&lon=' + userLocation[1] + '&zoom=12&addressdetails=1';
+
+                    fetch(requestUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            var address = data.display_name;
+                            L.control.scale().addTo(map);
+                            L.control.locate().addTo(map);
+                            L.control.layers({}, { 'Hospitals': hospitalsLayer }, { collapsed: false }).addTo(map);
+                            L.marker(userLocation).addTo(hospitalsLayer).bindPopup('<b>Your Location</b><br>' + address);
+                        })
+                        .catch(error => console.log(error));
+                });
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+    </script>
+    <script>
+        window.addEventListener('DOMContentLoaded', initMap);
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('nearby_hospitals', 'nearby_hospitals_shortcode');
 
