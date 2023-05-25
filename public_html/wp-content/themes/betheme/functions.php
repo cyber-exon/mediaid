@@ -212,7 +212,7 @@ define('THEME_VERSION', MFN_THEME_VERSION);
 define('LIBS_DIR', get_template_directory() .'/functions');
 define('LIBS_URI', get_template_directory() .'/functions');
 
-function add_geolocation_script() {
+/*function add_geolocation_script() {
     if (is_page('emergency-2')) { // Check if the current page is "emergency-2"
         ?>
         <script>
@@ -244,4 +244,85 @@ function add_geolocation_script() {
         <?php
     }
 }
+add_action('wp_footer', 'add_geolocation_script');*/
+
+function add_geolocation_script() {
+    ?>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+
+            // You can store the location data in a variable or perform further actions with it
+            var userLocation = "Latitude: " + latitude + ", Longitude: " + longitude;
+            console.log(userLocation);
+
+            // Set the location value to the contact form field
+            document.getElementById("locationField").value = userLocation;
+        }
+
+        // Add a click event listener to the button to ask for permission and get location
+        document.getElementById("getLocationBtn").addEventListener("click", function() {
+            getLocation();
+        });
+    </script>
+    <?php
+}
 add_action('wp_footer', 'add_geolocation_script');
+
+function console_location_shortcode() {
+    ob_start();
+    ?>
+    <style>
+        #locationField {
+            width: 100%;
+        }
+    </style>
+    <script>	
+        function getLocation() {
+            if (navigator.permissions) {
+                navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+                    if (result.state === 'granted' || result.state === 'prompt') {
+                        navigator.geolocation.getCurrentPosition(showPosition);
+                    }
+                });
+            } else if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+
+            // You can store the location data in a variable or perform further actions with it
+            var userLocation = "Latitude: " + latitude + ", Longitude: " + longitude;
+            console.log(userLocation);
+
+            // Set the location value to the contact form field
+            document.getElementById("locationField").value = userLocation;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            getLocation();
+        });
+    </script>
+
+    <input type="text" id="locationField" name="location" disabled>
+    <button type="button" id="getLocationBtn" onclick="getLocation()">Get Location</button>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('console_location', 'console_location_shortcode');
+
+
